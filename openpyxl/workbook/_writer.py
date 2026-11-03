@@ -7,7 +7,9 @@ from openpyxl.xml.constants import (
     ARC_APP,
     ARC_CORE,
     ARC_CUSTOM,
+    ARC_LABEL_INFO,
     ARC_WORKBOOK,
+    LABELINFO_REL,
     PKG_REL_NS,
     CUSTOMUI_NS,
     ARC_ROOT_RELS,
@@ -185,6 +187,10 @@ class WorkbookWriter:
 
         if len(self.wb.custom_doc_props) >= 1:
             rel = Relationship(type="custom-properties", Target=ARC_CUSTOM)
+            rels.append(rel)
+
+        if len(self.wb.sensitivity_labels) >= 1:
+            rel = Relationship(Type=LABELINFO_REL, Target=ARC_LABEL_INFO)
             rels.append(rel)
 
         if self.wb.vba_archive is not None:

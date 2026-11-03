@@ -23,9 +23,12 @@ from openpyxl.xml.constants import (
     ARC_CORE,
     ARC_CUSTOM,
     ARC_CONTENT_TYPES,
+    ARC_LABEL_INFO,
+    ARC_ROOT_RELS,
     ARC_WORKBOOK,
     ARC_THEME,
     COMMENTS_NS,
+    LABELINFO_REL,
     SHARED_STRINGS,
     XLTM,
     XLTX,
@@ -41,6 +44,7 @@ from openpyxl.styles.stylesheet import apply_stylesheet
 
 from openpyxl.packaging.core import DocumentProperties
 from openpyxl.packaging.custom import CustomPropertyList
+from openpyxl.packaging.sensitivity import ClassificationLabelList
 from openpyxl.packaging.manifest import Manifest, Override
 
 from openpyxl.packaging.relationship import (
@@ -182,6 +186,41 @@ class ExcelReader:
             self.wb.custom_doc_props = CustomPropertyList.from_tree(src)
 
 
+    def _label_info_path(self):
+        """
+        Locate the sensitivity label part via the package relationships,
+        falling back to the default location
+        """
+        if ARC_ROOT_RELS in self.valid_files:
+            try:
+                rels = RelationshipList.from_tree(
+                    fromstring(self.archive.read(ARC_ROOT_RELS)))
+            except (TypeError, ValueError):
+                rels = RelationshipList()
+            for rel in rels.find(LABELINFO_REL):
+                if rel.TargetMode == "External":
+                    continue
+                path = rel.Target.lstrip("/")
+                if path in self.valid_files:
+                    return path
+        if ARC_LABEL_INFO in self.valid_files:
+            return ARC_LABEL_INFO
+
+
+    def read_sensitivity_labels(self):
+        path = self._label_info_path()
+        if path is None:
+            return
+        try:
+            src = fromstring(self.archive.read(path))
+            self.wb.sensitivity_labels = ClassificationLabelList.from_tree(src)
+        except (TypeError, ValueError) as e:
+            warnings.warn(
+                f"Could not read sensitivity label from {path} ({e}). "
+                "The label will not be preserved if this workbook is saved."
+            )
+
+
     def read_theme(self):
         if ARC_THEME in self.valid_files:
             self.wb.loaded_theme = self.archive.read(ARC_THEME)
@@ -295,6 +334,8 @@ class ExcelReader:
             self.read_properties()
             action = "read custom properties"
             self.read_custom()
+            action = "read sensitivity labels"
+            self.read_sensitivity_labels()
             action = "read theme"
             self.read_theme()
             action = "read stylesheet"

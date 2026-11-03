@@ -14,6 +14,7 @@ from openpyxl.xml.constants import (
     ARC_APP,
     ARC_CORE,
     ARC_CUSTOM,
+    ARC_LABEL_INFO,
     CPROPS_TYPE,
     ARC_THEME,
     ARC_STYLE,
@@ -73,6 +74,11 @@ class ExcelWriter:
 
             custom_override = CustomOverride()
             self.manifest.append(custom_override)
+
+        labels = self.workbook.sensitivity_labels
+        if len(labels) >= 1:
+            archive.writestr(ARC_LABEL_INFO, labels._write())
+            self.manifest.append(labels)
 
         self._write_worksheets()
         self._write_chartsheets()

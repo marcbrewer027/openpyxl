@@ -34,6 +34,7 @@ ARC_STYLE = PACKAGE_XL + '/styles.xml'
 ARC_THEME = PACKAGE_THEME + '/theme1.xml'
 ARC_SHARED_STRINGS = PACKAGE_XL + '/sharedStrings.xml'
 ARC_CUSTOM_UI = 'customUI/customUI.xml'
+ARC_LABEL_INFO = 'docMetadata/LabelInfo.xml'
 
 ## namespaces
 # XML
@@ -75,6 +76,10 @@ CHART_DRAWING_NS = "http://schemas.openxmlformats.org/drawingml/2006/chartDrawin
 
 CUSTOMUI_NS = 'http://schemas.microsoft.com/office/2006/relationships/ui/extensibility'
 
+# Microsoft Purview (MIP) sensitivity labels
+LABELINFO_NS = "http://schemas.microsoft.com/office/2020/mipLabelMetadata"
+LABELINFO_REL = "http://schemas.microsoft.com/office/2020/02/relationships/classificationlabels"
+
 
 NAMESPACES = {
     'cp': COREPROPS_NS,
@@ -103,6 +108,7 @@ CHART_TYPE = "application/vnd.openxmlformats-officedocument.drawingml.chart+xml"
 CHARTSHAPE_TYPE = "application/vnd.openxmlformats-officedocument.drawingml.chartshapes+xml"
 THEME_TYPE = "application/vnd.openxmlformats-officedocument.theme+xml"
 CPROPS_TYPE = "application/vnd.openxmlformats-officedocument.custom-properties+xml"
+LABELINFO_TYPE = "application/vnd.ms-office.classificationlabels+xml"
 XLTM = WORKBOOK_MACRO % 'template'
 XLSM = WORKBOOK_MACRO % 'sheet'
 XLTX = WORKBOOK % 'template'

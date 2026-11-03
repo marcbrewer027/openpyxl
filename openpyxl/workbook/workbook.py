@@ -32,6 +32,11 @@ from openpyxl.chartsheet import Chartsheet
 from .defined_name import DefinedName, DefinedNameDict
 from openpyxl.packaging.core import DocumentProperties
 from openpyxl.packaging.custom import CustomPropertyList
+from openpyxl.packaging.sensitivity import (
+    ClassificationLabelList,
+    apply_label,
+    remove_label,
+)
 from openpyxl.packaging.relationship import RelationshipList
 from .child import _WorkbookChild
 from .protection import DocumentSecurity
@@ -67,6 +72,7 @@ class Workbook:
         self._external_links = []
         self.properties = DocumentProperties()
         self.custom_doc_props = CustomPropertyList()
+        self.sensitivity_labels = ClassificationLabelList()
         self.security = DocumentSecurity()
         self.__write_only = write_only
         self.shared_strings = IndexedList()
@@ -130,6 +136,42 @@ class Workbook:
         if value not in (WINDOWS_EPOCH, MAC_EPOCH):
             raise ValueError("The epoch must be either 1900 or 1904")
         self._epoch = value
+
+
+    @property
+    def sensitivity_label(self):
+        """
+        The active sensitivity label (a ClassificationLabel) or None.
+
+        Use ``LabelRegistry.lookup(wb.sensitivity_label)`` to get its name.
+        """
+        return self.sensitivity_labels.active
+
+
+    def set_sensitivity_label(self, label, registry=None, method="Standard",
+                              legacy_properties=True):
+        """
+        Apply a sensitivity label, replacing any existing one.
+
+        :param label: a SensitivityLabel, or a label name if registry is given
+        :param registry: LabelRegistry used to look up label by name
+        :param method: "Standard" or "Privileged" (a deliberate choice that
+            automatic labelling should not override)
+        :param legacy_properties: also write the MSIP_Label_* custom
+            document properties read by older Office versions
+        """
+        if isinstance(label, str):
+            if registry is None:
+                raise TypeError(
+                    "A LabelRegistry is needed to apply a label by name")
+            label = registry[label]
+        apply_label(self, label, method=method,
+                    legacy_properties=legacy_properties)
+
+
+    def remove_sensitivity_label(self):
+        """Remove all sensitivity label metadata"""
+        remove_label(self)
 
 
     @property

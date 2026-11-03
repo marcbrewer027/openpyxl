@@ -1,3 +1,21 @@
+Unreleased
+==========
+
+
+Additions
+---------
+
+* Apply, read and remove Microsoft Purview sensitivity labels
+  (``Workbook.set_sensitivity_label``). See :doc:`sensitivity_labels`.
+
+
+Bugfixes
+--------
+
+* Sensitivity labels (``docMetadata/LabelInfo.xml``) were lost when a
+  labelled workbook was loaded and saved.
+
+
 3.1.5 (2024-06-28)
 ==================
 
